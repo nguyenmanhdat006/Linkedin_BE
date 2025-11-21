@@ -2,7 +2,7 @@ package com.nguyendat.linkedin.dto.request;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+public class VerifyRequest {
     private String email;
-    private String password;
+    private String code;
 }

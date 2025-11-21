@@ -1,6 +1,8 @@
 package com.nguyendat.linkedin.dto.request;
+import lombok.*;
 
+@Data
 public class LoginRequest {
-    public String email;
-    public String password;
+    private String email;
+    private String password;
 }
