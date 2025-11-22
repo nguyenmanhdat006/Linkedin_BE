@@ -23,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest request) {
-        userService.registerUser(request.getEmail(), request.getPassword());
+        userService.registerUser(request.getEmail(), request.getPassword(), request.getFirstname(), request.getLastname());
         return "Vui lòng kiểm tra email để xác nhận tài khoản";
     }
 

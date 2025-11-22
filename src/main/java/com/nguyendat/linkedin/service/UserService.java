@@ -7,6 +7,7 @@ import com.nguyendat.linkedin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import java.util.*;
 
@@ -17,11 +18,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public void registerUser(String email, String password) {
+    public void registerUser(String email, String password, String firstname, String lastname) {
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
+                .firstname(firstname)
+                .lastname(lastname)
                 .enabled(false)
                 .verificationCode(UUID.randomUUID().toString())
                 .build();
@@ -31,8 +35,8 @@ public class UserService {
 
         user.getRoles().add(role);
         userRepository.save(user);
-
-        // TODO: send verification email
+        
+        emailService.sendVerificationEmail(email, user.getVerificationCode());
         System.out.println("Verification code: " + user.getVerificationCode());
     }
 

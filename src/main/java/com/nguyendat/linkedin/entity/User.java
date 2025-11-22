@@ -23,6 +23,10 @@ public class User {
 
     private String password;
 
+    private String firstname;
+
+    private String lastname;
+
     private boolean enabled;
 
     private String verificationCode;
@@ -33,5 +37,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 }
