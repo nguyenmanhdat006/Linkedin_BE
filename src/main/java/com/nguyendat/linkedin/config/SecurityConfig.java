@@ -44,15 +44,13 @@ public class SecurityConfig {
         return authentication -> authProvider.authenticate(authentication);
     }
 
-    // Chỉ cho phép frontend chạy ở localhost:3000 (React CRA)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));        // CHỈ 3000
+        config.setAllowedOrigins(List.of("http://localhost:3000"));      
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);  // quan trọng để gửi token/cookie
-
+        config.setAllowCredentials(true); 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
