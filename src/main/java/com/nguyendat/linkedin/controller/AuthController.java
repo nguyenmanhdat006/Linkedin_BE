@@ -43,6 +43,6 @@ public class AuthController {
         if (!user.isEnabled()) return "Tài khoản chưa xác nhận email";
 
         Set<String> roles = user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
-        return jwtUtils.generateToken(user.getEmail(), roles);
+        return jwtUtils.generateToken(user.getEmail(), roles, user.getId());
     }
 }
