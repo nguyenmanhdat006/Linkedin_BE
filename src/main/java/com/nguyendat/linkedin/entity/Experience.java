@@ -1,96 +1,82 @@
 package com.nguyendat.linkedin.entity;
 
+import com.nguyendat.linkedin.entity.enums.EmploymentType;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.persistence.Index;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "experiences")
+@Table(name = "experiences", indexes = {
+    @Index(name = "idx_experiences_user_id", columnList = "user_id"),
+    @Index(name = "idx_experiences_start_date", columnList = "start_date")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Experience {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    
+    @Column(nullable = false)
     private String title;
+    
+    @Column(nullable = false)
     private String company;
+    
     private String location;
-
-    @Column(name = "start_date")
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employment_type")
+    private EmploymentType employmentType;
+    
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-
+    
     @Column(name = "end_date")
     private LocalDate endDate;
-
+    
+    @Column(name = "is_current")
+    @Builder.Default
+    private Boolean isCurrent = false;
+    
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    public Experience() {
+    
+    @Column(name = "display_order")
+    @Builder.Default
+    private Integer displayOrder = 0;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Experience)) return false;
+        Experience that = (Experience) o;
+        return id != null && id.equals(that.getId());
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

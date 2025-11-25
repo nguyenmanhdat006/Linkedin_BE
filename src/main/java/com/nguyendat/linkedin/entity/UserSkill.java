@@ -3,23 +3,23 @@ package com.nguyendat.linkedin.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.Index;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "education", indexes = {
-    @Index(name = "idx_education_user_id", columnList = "user_id"),
-    @Index(name = "idx_education_start_date", columnList = "start_date")
-})
+@Table(name = "user_skills", 
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "skill_id"}),
+    indexes = {
+        @Index(name = "idx_user_skills_user", columnList = "user_id"),
+        @Index(name = "idx_user_skills_skill", columnList = "skill_id")
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Education {
+public class UserSkill {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,27 +29,13 @@ public class Education {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @Column(nullable = false)
-    private String school;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_id", nullable = false)
+    private Skill skill;
     
-    private String degree;
-    
-    @Column(name = "field_of_study")
-    private String fieldOfStudy;
-    
-    @Column(name = "start_date")
-    private LocalDate startDate;
-    
-    @Column(name = "end_date")
-    private LocalDate endDate;
-    
-    private Double grade;
-    
-    @Column(columnDefinition = "TEXT")
-    private String activities;
-    
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "endorsement_count")
+    @Builder.Default
+    private Integer endorsementCount = 0;
     
     @Column(name = "display_order")
     @Builder.Default
@@ -59,15 +45,11 @@ public class Education {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Education)) return false;
-        Education that = (Education) o;
+        if (!(o instanceof UserSkill)) return false;
+        UserSkill that = (UserSkill) o;
         return id != null && id.equals(that.getId());
     }
     

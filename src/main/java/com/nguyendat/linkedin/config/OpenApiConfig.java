@@ -2,6 +2,7 @@ package com.nguyendat.linkedin.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -16,12 +17,16 @@ public class OpenApiConfig {
         final String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
-                .info(new Info().title("My API").version("1.0").description("API with JWT Auth"))
-                // Áp dụng bảo mật toàn cục
+                .info(new Info()
+                        .title("Linkedin Clone API")
+                        .description("Linkedin Clone Application APIs")
+                        .version("1.0")
+                        .contact(new Contact().name("Nguyen Dat"))) 
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
+                                        .name(securitySchemeName)
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
