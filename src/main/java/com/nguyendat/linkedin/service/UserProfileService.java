@@ -19,32 +19,33 @@ public class UserProfileService {
     private final UserRepository userRepository;
     
     /**
-     * Get user profile by ID with all details
-     * @param userId - ID of user to view
+     * Get user profile by slug with all details
+     * @param slug - slug of user to view
      * @param currentUserId - ID of current logged-in user
      * @return UserProfileResponse
      */
-    public UserProfileResponse getUserProfile(Long userId, Long currentUserId) {
-        // Get user with all relationships
-        User user = userRepository.findByIdWithDetails(userId)
-            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    public UserProfileResponse getUserProfile(String slug, Long currentUserId) {
+        // Get user with all relationships by slug
+        User user = userRepository.findBySlugWithDetails(slug)
+            .orElseThrow(() -> new RuntimeException("User not found with slug: " + slug));
         
-        // Get statistics
-        Integer connectionCount = userRepository.countConnections(userId);
-        Integer followerCount = userRepository.countFollowers(userId);
-        Integer followingCount = userRepository.countFollowing(userId);
+    // Get statistics
+    Long resolvedUserId = user.getId();
+    Integer connectionCount = userRepository.countConnections(resolvedUserId);
+    Integer followerCount = userRepository.countFollowers(resolvedUserId);
+    Integer followingCount = userRepository.countFollowing(resolvedUserId);
         
         // Check relationship with current user
-        boolean isOwnProfile = userId.equals(currentUserId);
+        boolean isOwnProfile = user.getId().equals(currentUserId);
         Boolean isConnected = false;
         String connectionStatus = null;
         Boolean isFollowing = false;
         
         if (!isOwnProfile && currentUserId != null) {
-            isConnected = userRepository.areConnected(currentUserId, userId);
-            connectionStatus = userRepository.getConnectionStatus(currentUserId, userId)
+            isConnected = userRepository.areConnected(currentUserId, user.getId());
+            connectionStatus = userRepository.getConnectionStatus(currentUserId, user.getId())
                 .orElse(null);
-            isFollowing = userRepository.isFollowing(currentUserId, userId);
+            isFollowing = userRepository.isFollowing(currentUserId, user.getId());
         }
         
         // Map experiences
@@ -124,6 +125,9 @@ public class UserProfileService {
      * Get current user profile
      */
     public UserProfileResponse getCurrentUserProfile(Long userId) {
-        return getUserProfile(userId, userId);
+        // Resolve slug for the current user and return profile by slug
+        String slug = userRepository.findSlugById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return getUserProfile(slug, userId);
     }
 }

@@ -4,6 +4,8 @@ import com.nguyendat.linkedin.entity.Role;
 import com.nguyendat.linkedin.entity.User;
 import com.nguyendat.linkedin.repository.RoleRepository;
 import com.nguyendat.linkedin.repository.UserRepository;
+import com.nguyendat.linkedin.util.SlugUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,15 @@ public class UserService {
     private final EmailService emailService;
 
     public void registerUser(String email, String password, String firstname, String lastname) {
+
+        String slug = SlugUtils.generateSlug(firstname + " " + lastname);
+        slug = ensureUniqueSlug(slug);
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .firstname(firstname)
                 .lastname(lastname)
+                .slug(slug)
                 .enabled(false)
                 .verificationCode(UUID.randomUUID().toString())
                 .build();
@@ -56,5 +62,14 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow();
+    }
+
+    private String ensureUniqueSlug(String baseSlug) {
+        String slug = baseSlug;
+        int count = 1;
+        while (userRepository.existsBySlug(slug)) {
+            slug = baseSlug + "-" + count++;
+        }
+        return slug;
     }
 }

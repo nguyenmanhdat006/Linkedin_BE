@@ -17,10 +17,10 @@ public class UserProfileController {
     
     private final UserProfileService userProfileService;
     
-    @GetMapping("/{userId}")
+    @GetMapping("/{slug}")
     public ResponseEntity<ApiResponse<UserProfileResponse>> getUserProfile(
-            @PathVariable Long userId,
-            @AuthenticationPrincipal UserPrincipal currentUser 
+        @PathVariable String slug,
+        @AuthenticationPrincipal UserPrincipal currentUser 
     ) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -31,9 +31,9 @@ public class UserProfileController {
             );
         }
 
-        Long currentUserId = currentUser.getId(); 
-        
-        UserProfileResponse profile = userProfileService.getUserProfile(userId, currentUserId);
+    Long currentUserId = currentUser.getId(); 
+
+    UserProfileResponse profile = userProfileService.getUserProfile(slug, currentUserId);
         
         return ResponseEntity.ok(ApiResponse.<UserProfileResponse>builder()
             .success(true)

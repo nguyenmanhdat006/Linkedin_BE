@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     
     Boolean existsByEmail(String email);
+
+       Boolean existsBySlug(String slug);
     
     // Get user with all relationships loaded
     @Query("SELECT DISTINCT u FROM User u " +
@@ -23,6 +25,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "LEFT JOIN FETCH us.skill " +
            "WHERE u.id = :userId")
     Optional<User> findByIdWithDetails(@Param("userId") Long userId);
+
+    // Get user with all relationships loaded by slug
+    @Query("SELECT DISTINCT u FROM User u " +
+           "LEFT JOIN FETCH u.experiences " +
+           "LEFT JOIN FETCH u.educations " +
+           "LEFT JOIN FETCH u.userSkills us " +
+           "LEFT JOIN FETCH us.skill " +
+           "WHERE u.slug = :slug")
+    Optional<User> findBySlugWithDetails(@Param("slug") String slug);
+
+    // Helper to resolve slug from id
+    @Query("SELECT u.slug FROM User u WHERE u.id = :userId")
+    Optional<String> findSlugById(@Param("userId") Long userId);
     
     // Count connections (accepted only)
     @Query("SELECT COUNT(c) FROM Connection c WHERE " +
