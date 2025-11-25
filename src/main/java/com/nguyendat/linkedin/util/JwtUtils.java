@@ -21,11 +21,11 @@ public class JwtUtils {
     /**
      * Tạo JWT token từ email và roles
      */
-    public String generateToken(String email, Set<String> roles, Long userId) {
+    public String generateToken(String email, Set<String> roles, String slug) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", roles)
-                .claim("userId", userId)
+                .claim("slug", slug)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(SignatureAlgorithm.HS256, secret)

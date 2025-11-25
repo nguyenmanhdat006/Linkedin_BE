@@ -57,6 +57,9 @@ public class User {
     // PROFILE 
     @Column(name = "full_name")
     private String fullName;
+
+    @Column(unique = true, nullable = false, length = 100)
+    private String slug;
     
     @Column(length = 500)
     private String headline;
