@@ -41,4 +41,28 @@ public class UserProfileController {
             .data(profile)
             .build());
     }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<String>> updateMyProfile(
+        @AuthenticationPrincipal UserPrincipal currentUser,
+        @RequestBody com.nguyendat.linkedin.dto.request.UpdateProfileRequest request
+    ) {
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ApiResponse.<String>builder()
+                    .success(false)
+                    .message("Unauthorized: User not found in context")
+                    .build()
+            );
+        }
+
+        Long currentUserId = currentUser.getId();
+        userProfileService.updateProfile(currentUserId, request);
+
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+            .success(true)
+            .message("Profile updated successfully")
+            .data(null)
+            .build());
+    }
 }

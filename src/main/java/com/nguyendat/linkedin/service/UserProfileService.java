@@ -1,12 +1,14 @@
 package com.nguyendat.linkedin.service;
 
 import com.nguyendat.linkedin.dto.response.UserProfileResponse;
+import com.nguyendat.linkedin.entity.Education;
 import com.nguyendat.linkedin.entity.User;
 import com.nguyendat.linkedin.entity.UserSkill;
 import com.nguyendat.linkedin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.nguyendat.linkedin.dto.request.UpdateProfileRequest;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -17,6 +19,26 @@ import java.util.stream.Collectors;
 public class UserProfileService {
     
     private final UserRepository userRepository;
+
+    @Transactional
+    public void updateProfile(Long userId, UpdateProfileRequest req) {
+        User user = userRepository.findByIdWithDetails(userId)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (req.getFullName() != null) user.setFullName(req.getFullName());
+        if (req.getHeadline() != null) user.setHeadline(req.getHeadline());
+        if (req.getAbout() != null) user.setAbout(req.getAbout());
+        if (req.getWebsite() != null) user.setWebsite(req.getWebsite());
+        if (req.getPhone() != null) user.setPhone(req.getPhone());
+
+        if (req.getCity() != null || req.getCountry() != null) {
+            String existing = user.getLocation();
+            String city = req.getCity() != null ? req.getCity() : (existing != null && existing.contains(",") ? existing.split(",")[0] : "");
+            String country = req.getCountry() != null ? req.getCountry() : (existing != null && existing.contains(",") ? existing.split(",")[1] : "");
+            user.setLocation(city + (country != null ? ", " + country : ""));
+        }
+        userRepository.save(user);
+    }
     
     /**
      * Get user profile by slug with all details
