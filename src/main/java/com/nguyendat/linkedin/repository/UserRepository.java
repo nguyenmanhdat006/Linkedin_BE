@@ -18,21 +18,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
        Boolean existsBySlug(String slug);
     
     // Get user with all relationships loaded
-    @Query("SELECT DISTINCT u FROM User u " +
-           "LEFT JOIN FETCH u.experiences " +
-           "LEFT JOIN FETCH u.educations " +
-           "LEFT JOIN FETCH u.userSkills us " +
-           "LEFT JOIN FETCH us.skill " +
-           "WHERE u.id = :userId")
+       @Query("SELECT DISTINCT u FROM User u " +
+                 "LEFT JOIN FETCH u.experiences " +
+                 "LEFT JOIN FETCH u.educations " +
+                 "LEFT JOIN FETCH u.skills s " +
+                 "WHERE u.id = :userId")
     Optional<User> findByIdWithDetails(@Param("userId") Long userId);
 
     // Get user with all relationships loaded by slug
-    @Query("SELECT DISTINCT u FROM User u " +
-           "LEFT JOIN FETCH u.experiences " +
-           "LEFT JOIN FETCH u.educations " +
-           "LEFT JOIN FETCH u.userSkills us " +
-           "LEFT JOIN FETCH us.skill " +
-           "WHERE u.slug = :slug")
+       @Query("SELECT DISTINCT u FROM User u " +
+                 "LEFT JOIN FETCH u.experiences " +
+                 "LEFT JOIN FETCH u.educations " +
+                 "LEFT JOIN FETCH u.skills s " +
+                 "WHERE u.slug = :slug")
     Optional<User> findBySlugWithDetails(@Param("slug") String slug);
 
     // Helper to resolve slug from id

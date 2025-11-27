@@ -113,9 +113,14 @@ public class User {
     @Builder.Default
     private Set<Education> educations = new HashSet<>();
     
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+        name = "user_skills",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
     @Builder.Default
-    private Set<UserSkill> userSkills = new HashSet<>();
+    private Set<Skill> skills = new HashSet<>();
     
     @OneToMany(mappedBy = "requester")
     @Builder.Default
@@ -162,14 +167,12 @@ public class User {
         education.setUser(null);
     }
     
-    public void addSkill(UserSkill userSkill) {
-        userSkills.add(userSkill);
-        userSkill.setUser(this);
+    public void addSkill(Skill skill) {
+        skills.add(skill);
     }
-    
-    public void removeSkill(UserSkill userSkill) {
-        userSkills.remove(userSkill);
-        userSkill.setUser(null);
+
+    public void removeSkill(Skill skill) {
+        skills.remove(skill);
     }
     
     @Override

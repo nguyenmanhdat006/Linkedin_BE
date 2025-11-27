@@ -3,7 +3,9 @@ package com.nguyendat.linkedin.service;
 import com.nguyendat.linkedin.dto.request.SkillRequest;
 import com.nguyendat.linkedin.dto.response.SkillResponse;
 import com.nguyendat.linkedin.entity.Skill;
+import com.nguyendat.linkedin.entity.User;
 import com.nguyendat.linkedin.repository.SkillRepository;
+import com.nguyendat.linkedin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class SkillService {
     private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
 
     public SkillResponse createSkill(SkillRequest req) {
         Skill skill = Skill.builder()
@@ -38,13 +41,49 @@ public class SkillService {
     }
 
     public void deleteSkill(Long id) {
-        skillRepository.deleteById(id);
+        Skill skill = skillRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Skill not found: " + id));
+        // detach from users first to avoid FK constraint
+        skill.getUsers().forEach(u -> u.getSkills().remove(skill));
+        // save affected users
+        skill.getUsers().forEach(userRepository::save);
+        skillRepository.delete(skill);
     }
 
     @Transactional(readOnly = true)
     public SkillResponse getSkill(Long id) {
         return skillRepository.findById(id).map(this::toResponse)
             .orElseThrow(() -> new RuntimeException("Skill not found: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<SkillResponse> listSkillsByUser(Long userId) {
+        User user = userRepository.findByIdWithDetails(userId)
+            .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        return user.getSkills().stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public SkillResponse addSkillToUser(Long userId, SkillRequest req) {
+        User user = userRepository.findByIdWithDetails(userId)
+            .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        Skill skill = skillRepository.findByName(req.getName()).orElseGet(() -> {
+            Skill s = Skill.builder()
+                .name(req.getName())
+                .category(req.getCategory())
+                .description(req.getDescription())
+                .build();
+            return skillRepository.save(s);
+        });
+
+        // add skill to user if not already present
+        if (!user.getSkills().contains(skill)) {
+            user.getSkills().add(skill);
+            userRepository.save(user);
+        }
+
+        return toResponse(skill);
     }
 
     @Transactional(readOnly = true)
