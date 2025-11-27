@@ -22,6 +22,12 @@ public class SkillController {
         return ResponseEntity.ok(ApiResponse.success(data, "List of skills"));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<List<SkillResponse>>> listByUser(@PathVariable Long userId) {
+        var data = skillService.listSkillsByUser(userId);
+        return ResponseEntity.ok(ApiResponse.success(data, "List of skills for user"));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SkillResponse>> get(@PathVariable Long id) {
         var data = skillService.getSkill(id);
@@ -32,6 +38,12 @@ public class SkillController {
     public ResponseEntity<ApiResponse<SkillResponse>> create(@RequestBody SkillRequest req) {
         var data = skillService.createSkill(req);
         return ResponseEntity.ok(ApiResponse.success(data, "Skill created"));
+    }
+
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<SkillResponse>> createForUser(@PathVariable Long userId, @RequestBody SkillRequest req) {
+        var data = skillService.addSkillToUser(userId, req);
+        return ResponseEntity.ok(ApiResponse.success(data, "Skill added to user"));
     }
 
     @PutMapping("/{id}")

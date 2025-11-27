@@ -1,9 +1,7 @@
 package com.nguyendat.linkedin.service;
 
 import com.nguyendat.linkedin.dto.response.UserProfileResponse;
-import com.nguyendat.linkedin.entity.Education;
 import com.nguyendat.linkedin.entity.User;
-import com.nguyendat.linkedin.entity.UserSkill;
 import com.nguyendat.linkedin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -103,15 +101,14 @@ public class UserProfileService {
                 .build())
             .collect(Collectors.toList());
         
-        // Map skills
-        var skills = user.getUserSkills().stream()
-            .sorted(Comparator.comparing(UserSkill::getEndorsementCount, Comparator.reverseOrder()))
-            .map(us -> UserProfileResponse.SkillDto.builder()
-                .id(us.getSkill().getId())
-                .name(us.getSkill().getName())
-                .category(us.getSkill().getCategory())
-                .endorsementCount(us.getEndorsementCount())
-                .isEndorsedByCurrentUser(false) // TODO: Implement endorsement check
+        // Map skills (simple mapping, endorsements removed)
+        var skills = user.getSkills().stream()
+            .map(s -> UserProfileResponse.SkillDto.builder()
+                .id(s.getId())
+                .name(s.getName())
+                .category(s.getCategory())
+                .endorsementCount(0)
+                .isEndorsedByCurrentUser(false)
                 .build())
             .collect(Collectors.toList());
         

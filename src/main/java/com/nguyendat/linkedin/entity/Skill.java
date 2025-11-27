@@ -8,6 +8,7 @@ import jakarta.persistence.Index;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "skills", indexes = {
@@ -36,9 +37,9 @@ public class Skill {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
-    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "skills")
     @Builder.Default
-    private List<UserSkill> userSkills = new ArrayList<>();
+    private Set<User> users = new java.util.HashSet<>();
     
     @Override
     public boolean equals(Object o) {
