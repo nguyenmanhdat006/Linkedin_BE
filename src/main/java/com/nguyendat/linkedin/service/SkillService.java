@@ -1,17 +1,20 @@
 package com.nguyendat.linkedin.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nguyendat.linkedin.dto.request.SkillRequest;
 import com.nguyendat.linkedin.dto.response.SkillResponse;
 import com.nguyendat.linkedin.entity.Skill;
 import com.nguyendat.linkedin.entity.User;
+import com.nguyendat.linkedin.exception.ResourceNotFoundException;
 import com.nguyendat.linkedin.repository.SkillRepository;
 import com.nguyendat.linkedin.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +35,7 @@ public class SkillService {
 
     public SkillResponse updateSkill(Long id, SkillRequest req) {
         Skill skill = skillRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Skill not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Skill not found: " + id));
         if (req.getName() != null) skill.setName(req.getName());
         skill.setCategory(req.getCategory());
         skill.setDescription(req.getDescription());
@@ -42,7 +45,7 @@ public class SkillService {
 
     public void deleteSkill(Long id) {
         Skill skill = skillRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Skill not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Skill not found: " + id));
         // detach from users first to avoid FK constraint
         skill.getUsers().forEach(u -> u.getSkills().remove(skill));
         // save affected users
@@ -53,20 +56,20 @@ public class SkillService {
     @Transactional(readOnly = true)
     public SkillResponse getSkill(Long id) {
         return skillRepository.findById(id).map(this::toResponse)
-            .orElseThrow(() -> new RuntimeException("Skill not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Skill not found: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<SkillResponse> listSkillsByUser(Long userId) {
         User user = userRepository.findByIdWithDetails(userId)
-            .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         return user.getSkills().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public SkillResponse addSkillToUser(Long userId, SkillRequest req) {
         User user = userRepository.findByIdWithDetails(userId)
-            .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         Skill skill = skillRepository.findByName(req.getName()).orElseGet(() -> {
             Skill s = Skill.builder()
