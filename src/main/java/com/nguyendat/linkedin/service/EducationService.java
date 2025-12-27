@@ -1,17 +1,20 @@
 package com.nguyendat.linkedin.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nguyendat.linkedin.dto.request.EducationRequest;
 import com.nguyendat.linkedin.dto.response.EducationResponse;
 import com.nguyendat.linkedin.entity.Education;
 import com.nguyendat.linkedin.entity.User;
+import com.nguyendat.linkedin.exception.ResourceNotFoundException;
 import com.nguyendat.linkedin.repository.EducationRepository;
 import com.nguyendat.linkedin.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class EducationService {
 
     public EducationResponse createEducation(EducationRequest req) {
         User user = userRepository.findById(req.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found: " + req.getUserId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found: " + req.getUserId()));
         Education edu = Education.builder()
             .user(user)
             .school(req.getSchool())
@@ -41,7 +44,7 @@ public class EducationService {
 
     public EducationResponse updateEducation(Long id, EducationRequest req) {
         Education edu = educationRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Education not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Education not found: " + id));
         if (req.getSchool() != null) edu.setSchool(req.getSchool());
         if (req.getDegree() != null) edu.setDegree(req.getDegree());
         if (req.getFieldOfStudy() != null) edu.setFieldOfStudy(req.getFieldOfStudy());
@@ -56,13 +59,16 @@ public class EducationService {
     }
 
     public void deleteEducation(Long id) {
+        if (!educationRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Education not found: " + id);
+        }
         educationRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     public EducationResponse getEducation(Long id) {
         return educationRepository.findById(id).map(this::toResponse)
-            .orElseThrow(() -> new RuntimeException("Education not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Education not found: " + id));
     }
 
     @Transactional(readOnly = true)
